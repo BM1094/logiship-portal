@@ -1,10 +1,7 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Truck, Ship, Plane, Package, AlertCircle, BarChart3, Shield, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
-
-<lov-add-dependency>framer-motion@latest</lov-add-dependency>
 
 const services = [
   {
