@@ -15,9 +15,6 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PackageRegistration from "./pages/admin/PackageRegistration";
 
-// Zustand dependency for state management
-<lov-add-dependency>zustand@latest</lov-add-dependency>
-
 const queryClient = new QueryClient();
 
 const App = () => (
