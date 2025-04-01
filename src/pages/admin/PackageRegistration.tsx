@@ -41,19 +41,19 @@ const PackageRegistration = () => {
     resolver: zodResolver(packageSchema),
     defaultValues: {
       customer: {
-        name: "",
-        email: "",
-        phone: "",
+        name: "", // Non-optional with empty string default
+        email: "", // Non-optional with empty string default
+        phone: "", // Non-optional with empty string default
       },
       shipment: {
-        type: "",
-        weight: "",
-        dimensions: "",
+        type: "", // Non-optional with empty string default
+        weight: "", // Non-optional with empty string default
+        dimensions: "", // Non-optional with empty string default
       },
       route: {
-        origin: "",
-        destination: "",
-        estimatedDelivery: "",
+        origin: "", // Non-optional with empty string default
+        destination: "", // Non-optional with empty string default
+        estimatedDelivery: "", // Non-optional with empty string default
       },
       description: "",
     },

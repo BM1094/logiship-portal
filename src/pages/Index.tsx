@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Services from "../components/Services";
 import About from "../components/About";
-import Tracking from "../components/Tracking";
+import Tracking from "../components/tracking"; // Updated import path to match new folder structure
 import Testimonials from "../components/Testimonials";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
