@@ -1,64 +1,85 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Package, Truck, MapPin, Box, BarChart } from "lucide-react";
-
-const trackingSteps = [
-  {
-    status: "Order Received",
-    location: "Los Angeles, CA",
-    date: "May 24, 2023",
-    time: "09:45 AM",
-    completed: true,
-  },
-  {
-    status: "Processing",
-    location: "Los Angeles, CA",
-    date: "May 24, 2023",
-    time: "02:30 PM",
-    completed: true,
-  },
-  {
-    status: "Shipped",
-    location: "Los Angeles, CA",
-    date: "May 25, 2023",
-    time: "10:15 AM",
-    completed: true,
-  },
-  {
-    status: "In Transit",
-    location: "Chicago, IL",
-    date: "May 27, 2023",
-    time: "11:30 AM",
-    completed: true,
-  },
-  {
-    status: "Out for Delivery",
-    location: "New York, NY",
-    date: "May 29, 2023",
-    time: "08:45 AM",
-    completed: false,
-  },
-  {
-    status: "Delivered",
-    location: "New York, NY",
-    date: "May 29, 2023",
-    time: "02:00 PM",
-    completed: false,
-  },
-];
+import { usePackageStore } from "../stores/packageStore";
+import { format } from "date-fns";
 
 const Tracking = () => {
   const [trackingId, setTrackingId] = useState("");
   const [isTracking, setIsTracking] = useState(false);
   const [activeTab, setActiveTab] = useState("status");
+  const { getPackage } = usePackageStore();
+  const [packageInfo, setPackageInfo] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (trackingId.trim()) {
-      setIsTracking(true);
+      const foundPackage = getPackage(trackingId);
+      
+      if (foundPackage) {
+        setPackageInfo(foundPackage);
+        setIsTracking(true);
+      } else {
+        // For demo purposes, show the sample tracking
+        setPackageInfo(null);
+        setIsTracking(true);
+      }
     }
   };
+
+  // Use demo tracking steps if no package is found
+  const trackingSteps = packageInfo?.trackingHistory || [
+    {
+      status: "Order Received",
+      location: "Los Angeles, CA",
+      date: "May 24, 2023",
+      time: "09:45 AM",
+      completed: true,
+    },
+    {
+      status: "Processing",
+      location: "Los Angeles, CA",
+      date: "May 24, 2023",
+      time: "02:30 PM",
+      completed: true,
+    },
+    {
+      status: "Shipped",
+      location: "Los Angeles, CA",
+      date: "May 25, 2023",
+      time: "10:15 AM",
+      completed: true,
+    },
+    {
+      status: "In Transit",
+      location: "Chicago, IL",
+      date: "May 27, 2023",
+      time: "11:30 AM",
+      completed: true,
+    },
+    {
+      status: "Out for Delivery",
+      location: "New York, NY",
+      date: "May 29, 2023",
+      time: "08:45 AM",
+      completed: false,
+    },
+    {
+      status: "Delivered",
+      location: "New York, NY",
+      date: "May 29, 2023",
+      time: "02:00 PM",
+      completed: false,
+    },
+  ];
+
+  // Format tracking steps for display
+  const displaySteps = packageInfo ? trackingSteps.map(step => ({
+    ...step,
+    completed: true,
+    date: format(new Date(step.date), "MMM dd, yyyy"),
+    time: step.time || format(new Date(step.date), "hh:mm a")
+  })) : trackingSteps;
 
   return (
     <div id="tracking" className="bg-white">
@@ -116,12 +137,12 @@ const Tracking = () => {
                       <p className="text-sm text-muted-foreground">
                         Tracking Number
                       </p>
-                      <p className="text-lg font-medium">SHIP-{trackingId}</p>
+                      <p className="text-lg font-medium">{packageInfo?.id || `SHIP-${trackingId}`}</p>
                     </div>
                     <div className="mt-4 md:mt-0">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
                         <Truck size={14} className="mr-1" />
-                        In Transit
+                        {packageInfo?.status || "In Transit"}
                       </span>
                     </div>
                   </div>
@@ -131,19 +152,25 @@ const Tracking = () => {
                       <p className="text-sm text-muted-foreground">
                         Estimated Delivery
                       </p>
-                      <p className="font-medium">May 29, 2023</p>
+                      <p className="font-medium">
+                        {packageInfo?.route?.estimatedDelivery 
+                          ? format(new Date(packageInfo.route.estimatedDelivery), "MMM dd, yyyy") 
+                          : "May 29, 2023"}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">
                         Current Location
                       </p>
-                      <p className="font-medium">Chicago, IL</p>
+                      <p className="font-medium">
+                        {displaySteps[displaySteps.length - 1]?.location || "Chicago, IL"}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">
                         Shipping Method
                       </p>
-                      <p className="font-medium">Express Freight</p>
+                      <p className="font-medium">{packageInfo?.shipment?.type || "Express Freight"}</p>
                     </div>
                   </div>
                 </div>
@@ -179,7 +206,7 @@ const Tracking = () => {
                     <div className="absolute left-4 top-0 bottom-0 w-1 bg-gray-200"></div>
 
                     <div className="space-y-8">
-                      {trackingSteps.map((step, index) => (
+                      {displaySteps.map((step, index) => (
                         <div
                           key={index}
                           className="relative pl-12"
@@ -224,11 +251,11 @@ const Tracking = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <p className="text-muted-foreground">Weight:</p>
-                          <p>2.5 kg</p>
+                          <p>{packageInfo?.shipment?.weight || "2.5 kg"}</p>
                         </div>
                         <div className="flex justify-between">
                           <p className="text-muted-foreground">Dimensions:</p>
-                          <p>30cm × 25cm × 15cm</p>
+                          <p>{packageInfo?.shipment?.dimensions || "30cm × 25cm × 15cm"}</p>
                         </div>
                         <div className="flex justify-between">
                           <p className="text-muted-foreground">Pieces:</p>
@@ -248,19 +275,23 @@ const Tracking = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <p className="text-muted-foreground">Service Type:</p>
-                          <p>Express Freight</p>
+                          <p>{packageInfo?.shipment?.type || "Express Freight"}</p>
                         </div>
                         <div className="flex justify-between">
                           <p className="text-muted-foreground">
                             Shipping Date:
                           </p>
-                          <p>May 25, 2023</p>
+                          <p>{displaySteps[2]?.date || "May 25, 2023"}</p>
                         </div>
                         <div className="flex justify-between">
                           <p className="text-muted-foreground">
                             Estimated Delivery:
                           </p>
-                          <p>May 29, 2023</p>
+                          <p>
+                            {packageInfo?.route?.estimatedDelivery 
+                              ? format(new Date(packageInfo.route.estimatedDelivery), "MMM dd, yyyy") 
+                              : "May 29, 2023"}
+                          </p>
                         </div>
                       </div>
                     </div>
