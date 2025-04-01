@@ -4,10 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePackageStore } from "../../stores/packageStore";
+import { format } from "date-fns";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { packages } = usePackageStore();
   
   useEffect(() => {
     // Check if user is logged in
@@ -42,20 +45,20 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <DashboardCard 
                 title="Total Packages" 
-                value="247" 
-                change="+12% from last month" 
+                value={packages.length.toString()} 
+                change={packages.length > 0 ? "+1 from last login" : "No packages yet"} 
                 positive={true} 
               />
               <DashboardCard 
                 title="In Transit" 
-                value="58" 
-                change="8 delivered today" 
+                value={packages.filter(p => p.status === "In Transit").length.toString()} 
+                change="Packages currently being delivered" 
                 positive={true} 
               />
               <DashboardCard 
-                title="Delayed" 
-                value="7" 
-                change="-3% from last month" 
+                title="Delivered" 
+                value={packages.filter(p => p.status === "Delivered").length.toString()} 
+                change="Successfully delivered packages" 
                 positive={true} 
               />
             </div>
@@ -94,51 +97,46 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {[
-                      {
-                        id: "SHIP-123456",
-                        customer: "John Smith",
-                        origin: "Los Angeles, CA",
-                        destination: "New York, NY",
-                        status: "In Transit",
-                      },
-                      {
-                        id: "SHIP-123457",
-                        customer: "Jane Doe",
-                        origin: "Chicago, IL",
-                        destination: "Miami, FL",
-                        status: "Delivered",
-                      },
-                      {
-                        id: "SHIP-123458",
-                        customer: "Bob Johnson",
-                        origin: "Seattle, WA",
-                        destination: "Boston, MA",
-                        status: "Processing",
-                      },
-                    ].map((pkg) => (
-                      <tr key={pkg.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">{pkg.id}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{pkg.customer}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{pkg.origin}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{pkg.destination}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            pkg.status === "Delivered" 
-                              ? "bg-green-100 text-green-800" 
-                              : pkg.status === "In Transit" 
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-amber-100 text-amber-800"
-                          }`}>
-                            {pkg.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <Button variant="ghost" size="sm">View</Button>
-                          <Button variant="ghost" size="sm">Update</Button>
+                    {packages.length > 0 ? (
+                      packages.map((pkg) => (
+                        <tr key={pkg.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">{pkg.id}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">{pkg.customer.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">{pkg.route.origin}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">{pkg.route.destination}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              pkg.status === "Delivered" 
+                                ? "bg-green-100 text-green-800" 
+                                : pkg.status === "In Transit" 
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-amber-100 text-amber-800"
+                            }`}>
+                              {pkg.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <Button variant="ghost" size="sm">View</Button>
+                            <Button variant="ghost" size="sm">Update</Button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
+                          No packages have been registered yet.
+                          <div className="mt-2">
+                            <Button 
+                              onClick={() => navigate("/admin/packages/new")} 
+                              variant="outline" 
+                              size="sm"
+                            >
+                              Register Your First Package
+                            </Button>
+                          </div>
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -183,7 +181,12 @@ const AdminDashboard = () => {
   );
 };
 
-const DashboardCard = ({ title, value, change, positive }) => (
+const DashboardCard = ({ title, value, change, positive }: { 
+  title: string; 
+  value: string; 
+  change: string; 
+  positive: boolean;
+}) => (
   <div className="bg-white p-6 rounded-lg shadow-sm">
     <h3 className="text-muted-foreground text-sm font-medium mb-2">{title}</h3>
     <p className="text-3xl font-bold mb-1">{value}</p>

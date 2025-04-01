@@ -2,27 +2,20 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Truck, MapPin, Box, BarChart } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import TrackingTimeline from "./TrackingTimeline";
 import TrackingDetails from "./TrackingDetails";
-
-interface TrackingStep {
-  status: string;
-  location: string;
-  date: string;
-  time: string;
-  completed: boolean;
-}
+import { Package } from "../../stores/packageStore";
 
 interface TrackingResultProps {
-  packageInfo: any | null;
+  packageInfo: Package | null;
 }
 
 const TrackingResult = ({ packageInfo }: TrackingResultProps) => {
   const [activeTab, setActiveTab] = useState("status");
 
   // Use demo tracking steps if no package is found
-  const trackingSteps = packageInfo?.trackingHistory || [
+  const demoTrackingSteps = [
     {
       status: "Order Received",
       location: "Los Angeles, CA",
@@ -68,12 +61,14 @@ const TrackingResult = ({ packageInfo }: TrackingResultProps) => {
   ];
 
   // Format tracking steps for display
-  const displaySteps = packageInfo ? trackingSteps.map(step => ({
-    ...step,
-    completed: true,
-    date: format(new Date(step.date), "MMM dd, yyyy"),
-    time: step.time || format(new Date(step.date), "hh:mm a")
-  })) : trackingSteps;
+  const displaySteps = packageInfo 
+    ? packageInfo.trackingHistory.map(step => ({
+        ...step,
+        completed: true,
+        date: format(parseISO(step.date), "MMM dd, yyyy"),
+        time: step.time || format(parseISO(step.date), "hh:mm a")
+      })) 
+    : demoTrackingSteps;
 
   return (
     <motion.div

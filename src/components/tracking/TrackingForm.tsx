@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Package } from "lucide-react";
 import { usePackageStore } from "../../stores/packageStore";
+import { toast } from "sonner";
 
 interface TrackingFormProps {
   onSubmit: (packageInfo: any | null, isTracking: boolean) => void;
@@ -12,15 +13,17 @@ const TrackingForm = ({ onSubmit }: TrackingFormProps) => {
   const [trackingId, setTrackingId] = useState("");
   const { getPackage } = usePackageStore();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (trackingId.trim()) {
       const foundPackage = getPackage(trackingId);
       
       if (foundPackage) {
         onSubmit(foundPackage, true);
+        toast.success(`Found package ${trackingId}`);
       } else {
-        // For demo purposes, show the sample tracking
+        toast.error(`No package found with tracking ID: ${trackingId}`);
+        // For demo purposes, still show the sample tracking
         onSubmit(null, true);
       }
     }
