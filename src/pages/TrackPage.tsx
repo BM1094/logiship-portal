@@ -1,7 +1,7 @@
 
 import React from "react";
 import Navbar from "../components/Navbar";
-import Tracking from "../components/Tracking";
+import Tracking from "../components/tracking";
 import Footer from "../components/Footer";
 
 const TrackPage = () => {
