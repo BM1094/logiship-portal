@@ -33,33 +33,35 @@ const packageSchema = z.object({
   description: z.string().optional(),
 });
 
+type PackageFormValues = z.infer<typeof packageSchema>;
+
 const PackageRegistration = () => {
   const navigate = useNavigate();
   const { addPackage } = usePackageStore();
   
-  const form = useForm<z.infer<typeof packageSchema>>({
+  const form = useForm<PackageFormValues>({
     resolver: zodResolver(packageSchema),
     defaultValues: {
       customer: {
-        name: "", // Non-optional with empty string default
-        email: "", // Non-optional with empty string default
-        phone: "", // Non-optional with empty string default
+        name: "", 
+        email: "", 
+        phone: "", 
       },
       shipment: {
-        type: "", // Non-optional with empty string default
-        weight: "", // Non-optional with empty string default
-        dimensions: "", // Non-optional with empty string default
+        type: "", 
+        weight: "", 
+        dimensions: "", 
       },
       route: {
-        origin: "", // Non-optional with empty string default
-        destination: "", // Non-optional with empty string default
-        estimatedDelivery: "", // Non-optional with empty string default
+        origin: "", 
+        destination: "", 
+        estimatedDelivery: "", 
       },
       description: "",
     },
   });
 
-  const onSubmit = (data: z.infer<typeof packageSchema>) => {
+  const onSubmit = (data: PackageFormValues) => {
     console.log("Package data:", data);
     
     // Generate a tracking ID
