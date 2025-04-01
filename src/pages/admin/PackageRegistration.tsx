@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import AdminNavbar from "../../components/admin/AdminNavbar";
 import { toast } from "sonner";
 import { ArrowLeft, Package } from "lucide-react";
-import { usePackageStore } from "../../stores/packageStore";
+import { usePackageStore, Package as PackageType } from "../../stores/packageStore";
 
 const packageSchema = z.object({
   customer: z.object({
@@ -70,9 +70,21 @@ const PackageRegistration = () => {
     // Register the package in our store
     addPackage({
       id: trackingId,
-      customer: data.customer,
-      shipment: data.shipment,
-      route: data.route,
+      customer: {
+        name: data.customer.name,
+        email: data.customer.email,
+        phone: data.customer.phone
+      },
+      shipment: {
+        type: data.shipment.type,
+        weight: data.shipment.weight,
+        dimensions: data.shipment.dimensions
+      },
+      route: {
+        origin: data.route.origin,
+        destination: data.route.destination,
+        estimatedDelivery: data.route.estimatedDelivery
+      },
       description: data.description,
       status: "Registered",
       trackingHistory: [
