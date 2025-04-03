@@ -14,6 +14,7 @@ import QuotePage from "./pages/QuotePage";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PackageRegistration from "./pages/admin/PackageRegistration";
+import QuoteManagement from "./pages/admin/QuoteManagement";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/packages/new" element={<PackageRegistration />} />
+          <Route path="/admin/quotes" element={<QuoteManagement />} />
           
           {/* 404 page */}
           <Route path="*" element={<NotFound />} />

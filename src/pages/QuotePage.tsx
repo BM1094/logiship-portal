@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useQuoteStore } from "../stores/quoteStore";
+import { CheckCircle2 } from "lucide-react";
 
 const quoteFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,6 +23,9 @@ const quoteFormSchema = z.object({
 });
 
 const QuotePage = () => {
+  const { addQuote } = useQuoteStore();
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
+  
   const form = useForm<z.infer<typeof quoteFormSchema>>({
     resolver: zodResolver(quoteFormSchema),
     defaultValues: {
@@ -35,8 +40,20 @@ const QuotePage = () => {
 
   const onSubmit = (data: z.infer<typeof quoteFormSchema>) => {
     console.log("Quote request data:", data);
+    
+    // Save the quote request to our store
+    const newQuote = addQuote(data);
+    
     toast.success("Your quote request has been submitted. We'll get back to you shortly!");
+    console.log("Saved quote with ID:", newQuote.id);
+    
     form.reset();
+    setIsSubmitted(true);
+    
+    // Reset the success message after 5 seconds
+    setTimeout(() => {
+      setIsSubmitted(false);
+    }, 5000);
   };
 
   return (
@@ -54,6 +71,13 @@ const QuotePage = () => {
         
         <div className="section-container py-12">
           <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-sm">
+            {isSubmitted && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-100 rounded-lg flex items-center text-green-700">
+                <CheckCircle2 className="h-5 w-5 mr-2" />
+                <p>Thank you! Your quote request has been submitted successfully. We'll contact you soon.</p>
+              </div>
+            )}
+            
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
